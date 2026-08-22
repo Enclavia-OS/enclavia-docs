@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deployment | Enclavia Docs</title>
+    <meta name="description" content="Deploy the Enclavia control plane and data plane in your AWS VPC.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { theme: { extend: {
+            colors: { brand: '#3b82f6', darkbg: '#020617', darkcard: '#0f172a' },
+            fontFamily: { sans: ['Inter', 'sans-serif'], mono: ['Menlo', 'monospace'] }
+        } } }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%233b82f6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'></path></svg>">
+</head>
+<body class="bg-darkbg text-slate-300 font-sans antialiased">
+
+<nav class="sticky top-0 bg-darkbg/80 backdrop-blur-md z-50 border-b border-slate-800">
+    <div class="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
+        <a href="index.html" class="flex items-center gap-2 text-lg font-bold text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-brand" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+            Enclavia <span class="text-brand font-mono text-xs font-normal">Docs</span>
+        </a>
+        <div class="flex items-center gap-5 text-sm">
+            <a href="index.html" class="hover:text-white">Getting Started</a>
+            <a href="deployment.html" class="text-brand font-bold">Deployment</a>
+            <a href="agent.html" class="hover:text-white">Agent Integration</a>
+            <a href="https://www.enclavia.xyz" class="text-slate-500 hover:text-white">enclavia.xyz ↗</a>
+        </div>
+    </div>
+</nav>
+
+<main class="max-w-4xl mx-auto px-6 py-16">
+
+    <h1 class="text-3xl md:text-4xl font-extrabold text-white mb-4">Deploy in your VPC</h1>
+    <p class="text-slate-400 mb-10">The control plane and data plane both run in your AWS account. Raw data never leaves your VPC.</p>
+
+    <section class="mb-12">
+        <h2 class="text-xl font-bold text-white mb-4">1 · Prerequisites</h2>
+        <ul class="list-disc list-inside text-sm text-slate-400 space-y-2">
+            <li>An AWS account with permission to create EC2, RDS, and IAM roles.</li>
+            <li>A VPC with subnets for the control plane, data plane, and database.</li>
+            <li><code class="font-mono text-brand">terraform</code> ≥ 1.5 and AWS credentials.</li>
+            <li>An SSH key pair for the two hosts.</li>
+            <li>A DNS name for the dashboard (e.g. <code class="font-mono text-brand">enclavia.acme.com</code>).</li>
+        </ul>
+    </section>
+
+    <section class="mb-12">
+        <h2 class="text-xl font-bold text-white mb-4">2 · Provision with Terraform</h2>
+        <p class="text-sm text-slate-400 mb-4">The Enclavia Terraform module provisions RDS, the control plane host, the Nitro data plane host, security groups, and IAM. Fill in the required inputs and apply.</p>
+        <div class="bg-darkcard rounded-xl border border-slate-800 overflow-x-auto">
+<pre class="p-6 text-sm font-mono text-slate-300">module "enclavia" {
+  source = "./terraform/enclavia"
+
+  region                  = "us-east-1"
+  vpc_id                  = "vpc-xxxx"
+  control_plane_subnet_id = "subnet-cp"
+  data_plane_subnet_id    = "subnet-dp"
+  db_subnet_ids           = ["subnet-a", "subnet-b"]
+  key_name                = "my-keypair"
+
+  db_username               = "enclavia"
+  db_password               = var.db_password
+  dashboard_domain          = "enclavia.acme.com"
+  nexauth_secret            = var.nexauth_secret
+  control_plane_service_token = var.service_token
+  policy_signing_private_key  = var.signing_private_key
+  policy_public_key         = var.signing_public_key
+}</pre>
+        </div>
+        <p class="text-xs text-slate-500 mt-3">Outputs include the dashboard URL, the data plane endpoint, and the database endpoint.</p>
+    </section>
+
+    <section class="mb-12">
+        <h2 class="text-xl font-bold text-white mb-4">3 · Policy signing key (decide up front)</h2>
+        <p class="text-sm text-slate-400 mb-3">Runtime policy changes are only enforced when signed by an Ed25519 keypair. Choose one custody model before onboarding:</p>
+        <div class="grid md:grid-cols-2 gap-4">
+            <div class="bg-darkcard p-5 rounded-xl border border-slate-800">
+                <h3 class="font-bold text-white mb-1">Enclavia-held (default)</h3>
+                <p class="text-xs text-slate-400">Enclavia keeps the private key. Every policy change still requires an Enclavia super-admin approval, preserving the "rogue insider cannot forge an allowlist" guarantee.</p>
+            </div>
+            <div class="bg-darkcard p-5 rounded-xl border border-slate-800">
+                <h3 class="font-bold text-white mb-1">Customer-held</h3>
+                <p class="text-xs text-slate-400">Your team holds the keypair and runs its own super admins. Full runtime autonomy, but your super admin can sign arbitrary allowlists.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="mb-12">
+        <h2 class="text-xl font-bold text-white mb-4">4 · Operations</h2>
+        <div class="space-y-4 text-sm text-slate-400">
+            <div>
+                <h3 class="font-semibold text-slate-200">Backups &amp; restore</h3>
+                <p>RDS automated backups are on. Test a restore quarterly: restore to a scratch instance and confirm the dashboard loads.</p>
+            </div>
+            <div>
+                <h3 class="font-semibold text-slate-200">Rotate keys</h3>
+                <p>Workload API keys rotate from the dashboard (Workloads → the workload → Rotate key). LLM keys rotate under Teams → LLM Provider (BYOK). The signing key rotates via a key ring with no downtime.</p>
+            </div>
+            <div>
+                <h3 class="font-semibold text-slate-200">Restart the enclave</h3>
+                <p>The Nitro Enclave does not auto-start on host reboot. After a data-plane reboot, run the enclave start step (or automate it with a systemd unit).</p>
+            </div>
+            <div>
+                <h3 class="font-semibold text-slate-200">Monitoring</h3>
+                <p>Runtime diagnostics (build SHA, DB identity, data-plane reachability), a command center for incidents, and Slack-compatible alert webhooks.</p>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<footer class="py-10 px-6 border-t border-slate-800">
+    <div class="max-w-4xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+        <p class="text-sm text-slate-500">© 2026 Enclavia OS. All rights reserved.</p>
+        <div class="flex gap-6 text-sm">
+            <a href="index.html" class="text-slate-500 hover:text-white">Getting Started</a>
+            <a href="agent.html" class="text-slate-500 hover:text-white">Agent Integration</a>
+
+        </div>
+    </div>
+</footer>
+
+</body>
+</html>

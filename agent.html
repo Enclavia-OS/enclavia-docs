@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent Integration | Enclavia Docs</title>
+    <meta name="description" content="Integrate your agents with Enclavia — no code changes required.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { theme: { extend: {
+            colors: { brand: '#3b82f6', darkbg: '#020617', darkcard: '#0f172a' },
+            fontFamily: { sans: ['Inter', 'sans-serif'], mono: ['Menlo', 'monospace'] }
+        } } }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%233b82f6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'></path></svg>">
+</head>
+<body class="bg-darkbg text-slate-300 font-sans antialiased">
+
+<nav class="sticky top-0 bg-darkbg/80 backdrop-blur-md z-50 border-b border-slate-800">
+    <div class="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
+        <a href="index.html" class="flex items-center gap-2 text-lg font-bold text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-brand" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+            Enclavia <span class="text-brand font-mono text-xs font-normal">Docs</span>
+        </a>
+        <div class="flex items-center gap-5 text-sm">
+            <a href="index.html" class="hover:text-white">Getting Started</a>
+            <a href="deployment.html" class="hover:text-white">Deployment</a>
+            <a href="agent.html" class="text-brand font-bold">Agent Integration</a>
+            <a href="https://www.enclavia.xyz" class="text-slate-500 hover:text-white">enclavia.xyz ↗</a>
+        </div>
+    </div>
+</nav>
+
+<main class="max-w-4xl mx-auto px-6 py-16">
+
+    <h1 class="text-3xl md:text-4xl font-extrabold text-white mb-4">Agent integration</h1>
+    <p class="text-slate-400 mb-10">Enclavia is an egress proxy. Your agent keeps its existing logic and SDKs; you only point its outbound HTTP at the data plane.</p>
+
+    <section class="mb-12">
+        <h2 class="text-xl font-bold text-white mb-4">Python (recommended)</h2>
+        <p class="text-sm text-slate-400 mb-4">The <code class="font-mono text-brand">enclavia-agent</code> wheel patches <code class="font-mono text-brand">requests</code> and <code class="font-mono text-brand">httpx</code> at startup, so Anthropic/OpenAI SDKs and plain HTTP clients are routed through the enclave with no code changes.</p>
+        <div class="bg-darkcard rounded-xl border border-slate-800 overflow-x-auto">
+<pre class="p-6 text-sm font-mono text-slate-300">pip install enclavia-agent
+
+export ENCLAVIA_API_URL="http://&lt;data-plane&gt;:3001/api/agent/egress"
+export ENCLAVIA_API_KEY="&lt;workload-api-key&gt;"
+export ENCLAVIA_AGENT_ID="&lt;agent-id&gt;"</pre>
+        </div>
+        <p class="text-xs text-slate-500 mt-3">That's it. The patch is a no-op unless the environment variables are set, so it is safe to install everywhere.</p>
+    </section>
+
+    <section class="mb-12">
+        <h2 class="text-xl font-bold text-white mb-4">Other languages</h2>
+        <p class="text-sm text-slate-400">Requests from agents in other languages are routed through the Enclavia data plane automatically — configure the data plane endpoint and API key via environment variables or your agent's HTTP client configuration. The data plane is set up during <a href="deployment.html" class="text-brand hover:underline">deployment</a> and managed through the dashboard; there is no raw HTTP API you need to call from application code.</p>
+    </section>
+
+    <section>
+        <h2 class="text-xl font-bold text-white mb-4">Supported traffic</h2>
+        <ul class="list-disc list-inside text-sm text-slate-400 space-y-2">
+            <li><code class="font-mono text-brand">requests.get</code> / <code class="font-mono text-brand">requests.post</code></li>
+            <li><code class="font-mono text-brand">httpx.Client.send</code> / <code class="font-mono text-brand">httpx.AsyncClient.send</code> (covers Anthropic/OpenAI SDKs)</li>
+        </ul>
+    </section>
+
+</main>
+
+<footer class="py-10 px-6 border-t border-slate-800">
+    <div class="max-w-4xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+        <p class="text-sm text-slate-500">© 2026 Enclavia OS. All rights reserved.</p>
+        <div class="flex gap-6 text-sm">
+            <a href="index.html" class="text-slate-500 hover:text-white">Getting Started</a>
+            <a href="deployment.html" class="text-slate-500 hover:text-white">Deployment</a>
+
+        </div>
+    </div>
+</footer>
+
+</body>
+</html>

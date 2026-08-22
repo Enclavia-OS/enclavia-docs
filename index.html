@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Getting Started | Enclavia Docs</title>
+    <meta name="description" content="The minimum changes required to run Enclavia in your VPC and secure your AI agents.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { theme: { extend: {
+            colors: { brand: '#3b82f6', darkbg: '#020617', darkcard: '#0f172a' },
+            fontFamily: { sans: ['Inter', 'sans-serif'], mono: ['Menlo', 'monospace'] }
+        } } }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%233b82f6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'></path></svg>">
+</head>
+<body class="bg-darkbg text-slate-300 font-sans antialiased">
+
+<nav class="sticky top-0 bg-darkbg/80 backdrop-blur-md z-50 border-b border-slate-800">
+    <div class="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
+        <a href="index.html" class="flex items-center gap-2 text-lg font-bold text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-brand" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+            Enclavia <span class="text-brand font-mono text-xs font-normal">Docs</span>
+        </a>
+        <div class="flex items-center gap-5 text-sm">
+            <a href="index.html" class="text-brand font-bold">Getting Started</a>
+            <a href="deployment.html" class="hover:text-white">Deployment</a>
+            <a href="agent.html" class="hover:text-white">Agent Integration</a>
+            <a href="https://www.enclavia.xyz" class="text-slate-500 hover:text-white">enclavia.xyz ↗</a>
+        </div>
+    </div>
+</nav>
+
+<header class="py-20 px-6 text-center border-b border-slate-800">
+    <span class="inline-block bg-slate-800 text-brand text-xs font-mono px-3 py-1 rounded-full mb-6 border border-slate-700">Self-hosted · Your VPC</span>
+    <h1 class="text-4xl md:text-5xl font-extrabold text-white mb-4">Run Enclavia in your VPC</h1>
+    <p class="text-lg text-slate-400 max-w-2xl mx-auto">Hardware-enforced egress security for your AI agents. The entire stack runs inside your AWS account — and your agents need <strong class="text-white">no code changes</strong>.</p>
+</header>
+
+<main class="max-w-5xl mx-auto px-6 py-16">
+
+    <section class="mb-16">
+        <h2 class="text-2xl font-bold text-white mb-6">Minimum changes to go live</h2>
+        <div class="grid md:grid-cols-3 gap-6">
+            <div class="bg-darkcard p-6 rounded-xl border border-slate-800">
+                <div class="text-brand font-mono text-xs mb-3">1 · One-time</div>
+                <h3 class="font-bold text-white mb-2">Provision the stack</h3>
+                <p class="text-sm text-slate-400">Provide your AWS VPC and a few values. One <code class="font-mono text-brand">terraform apply</code> provisions the control plane, data plane, and enclave in your account.</p>
+                <a href="deployment.html" class="inline-block mt-4 text-sm text-brand hover:underline">Deployment guide →</a>
+            </div>
+            <div class="bg-darkcard p-6 rounded-xl border border-slate-800">
+                <div class="text-brand font-mono text-xs mb-3">2 · Per agent</div>
+                <h3 class="font-bold text-white mb-2">Point agents at the data plane</h3>
+                <p class="text-sm text-slate-400">Python agents: <code class="font-mono text-brand">pip install enclavia-agent</code> and set three environment variables. No SDK imports, no core-logic changes.</p>
+                <a href="agent.html" class="inline-block mt-4 text-sm text-brand hover:underline">Agent integration →</a>
+            </div>
+            <div class="bg-darkcard p-6 rounded-xl border border-slate-800">
+                <div class="text-brand font-mono text-xs mb-3">3 · Optional</div>
+                <h3 class="font-bold text-white mb-2">Add your LLM key</h3>
+                <p class="text-sm text-slate-400">For employee chat, add your Anthropic or OpenAI key in the dashboard under Teams → LLM Provider (BYOK). It is encrypted at rest.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="mb-16">
+        <h2 class="text-2xl font-bold text-white mb-6">The quick version</h2>
+        <div class="bg-darkcard rounded-xl border border-slate-800 overflow-x-auto">
+<pre class="p-6 text-sm font-mono text-slate-300"><span class="text-slate-500"># 1. Provision (AWS VPC + a few values)</span>
+terraform apply
+
+<span class="text-slate-500"># 2. Integrate an agent — three env vars, zero code changes</span>
+pip install enclavia-agent
+export ENCLAVIA_API_URL="http://&lt;data-plane&gt;:3001/api/agent/egress"
+export ENCLAVIA_API_KEY="&lt;workload-api-key&gt;"
+export ENCLAVIA_AGENT_ID="&lt;agent-id&gt;"</pre>
+        </div>
+    </section>
+
+    <section class="grid md:grid-cols-2 gap-6">
+        <div class="bg-darkcard p-6 rounded-xl border border-slate-800">
+            <h3 class="font-bold text-white mb-2">What we need from you</h3>
+            <ul class="list-disc list-inside text-sm text-slate-400 space-y-2">
+                <li>An AWS account (and permission to create EC2, RDS, and IAM roles).</li>
+                <li>A VPC with subnets to host the stack.</li>
+                <li>A DNS name for your dashboard (e.g. <code class="font-mono text-brand">enclavia.acme.com</code>).</li>
+                <li>Your agent workloads (or the repos that run them).</li>
+            </ul>
+        </div>
+        <div class="bg-darkcard p-6 rounded-xl border border-slate-800">
+            <h3 class="font-bold text-white mb-2">What you get</h3>
+            <ul class="list-disc list-inside text-sm text-slate-400 space-y-2">
+                <li>Control plane + data plane + AWS Nitro Enclave, in your VPC.</li>
+                <li>Allowlist &amp; DLP enforcement with NSM attestation on every decision.</li>
+                <li>Audit logs, SOC 2 exports, usage metering, and model routing.</li>
+                <li>Granular RBAC: Super Admin, Org Admin, Auditor.</li>
+            </ul>
+        </div>
+    </section>
+
+</main>
+
+<footer class="py-10 px-6 border-t border-slate-800">
+    <div class="max-w-5xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+        <p class="text-sm text-slate-500">© 2026 Enclavia OS. All rights reserved.</p>
+        <div class="flex gap-6 text-sm">
+            <a href="deployment.html" class="text-slate-500 hover:text-white">Deployment</a>
+            <a href="agent.html" class="text-slate-500 hover:text-white">Agent Integration</a>
+            <a href="https://www.enclavia.xyz" class="text-slate-500 hover:text-white">enclavia.xyz</a>
+        </div>
+    </div>
+</footer>
+
+</body>
+</html>
