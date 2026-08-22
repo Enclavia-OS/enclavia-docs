@@ -27,6 +27,7 @@
             <a href="index.html" class="hover:text-white">Getting Started</a>
             <a href="deployment.html" class="text-brand font-bold">Deployment</a>
             <a href="agent.html" class="hover:text-white">Agent Integration</a>
+            <a href="https://www.enclavia.xyz/security.html" class="hover:text-white">Security</a>
             <a href="https://www.enclavia.xyz" class="text-slate-500 hover:text-white">enclavia.xyz ↗</a>
         </div>
     </div>
@@ -102,7 +103,11 @@
             </div>
             <div>
                 <h3 class="font-semibold text-slate-200">Restart the enclave</h3>
-                <p>The Nitro Enclave does not auto-start on host reboot. After a data-plane reboot, run the enclave start step (or automate it with a systemd unit).</p>
+                <p>The production systemd units start the Nitro Enclave and data plane after host reboot. See the customer deployment guide for migration steps from older manual or debug-mode deployments.</p>
+            </div>
+            <div>
+                <h3 class="font-semibold text-slate-200">Employee Chat privacy</h3>
+                <p>Chat messages remain in the customer control-plane database. Organization admins can configure unlimited retention or a supported inactivity window of 7, 30, 90, 365, or 730 days.</p>
             </div>
             <div>
                 <h3 class="font-semibold text-slate-200">Monitoring</h3>
