@@ -15,4 +15,4 @@ Static site (plain HTML + Tailwind via CDN), deployable with GitHub Pages.
 
 - `index.html` — getting started: the minimum changes to go live.
 - `deployment.html` — deploying the stack in the customer's VPC + operations.
-- `agent.html` — agent integration (Python wheel — one `pip install` + three env vars, and non-Python guidance).
+- `agent.html` — agent integration (native HTTP, `@enclavia-os/cli`, and the optional Python zero-code hook).

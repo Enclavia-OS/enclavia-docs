@@ -52,8 +52,8 @@
             </div>
             <div class="bg-darkcard p-6 rounded-xl border border-slate-800">
                 <div class="text-brand font-mono text-xs mb-3">2 · Per agent</div>
-                <h3 class="font-bold text-white mb-2">Point agents at the data plane</h3>
-                <p class="text-sm text-slate-400">Python agents: <code class="font-mono text-brand">pip install enclavia-agent</code> and set three environment variables. No SDK imports, no core-logic changes.</p>
+                <h3 class="font-bold text-white mb-2">Choose an integration</h3>
+                <p class="text-sm text-slate-400">Use <code class="font-mono text-brand">@enclavia-os/cli</code> for scripts, the JSON HTTP contract from any language, or the optional Python hook for zero-code interception.</p>
                 <a href="agent.html" class="inline-block mt-4 text-sm text-brand hover:underline">Agent integration →</a>
             </div>
             <div class="bg-darkcard p-6 rounded-xl border border-slate-800">
@@ -70,11 +70,17 @@
 <pre class="p-6 text-sm font-mono text-slate-300"><span class="text-slate-500"># 1. Provision (AWS VPC + a few values)</span>
 terraform apply
 
-<span class="text-slate-500"># 2. Integrate an agent — three env vars, zero code changes</span>
-pip install enclavia-agent
-export ENCLAVIA_API_URL="http://&lt;data-plane&gt;:3001/api/agent/egress"
+<span class="text-slate-500"># 2. Configure workload credentials</span>
+export ENCLAVIA_API_URL="https://&lt;data-plane-host&gt;/api/agent/egress"
 export ENCLAVIA_API_KEY="&lt;workload-api-key&gt;"
-export ENCLAVIA_AGENT_ID="&lt;agent-id&gt;"</pre>
+export ENCLAVIA_AGENT_ID="&lt;workload-id&gt;"
+
+<span class="text-slate-500"># 3. Choose a client</span>
+npm install --global @enclavia-os/cli
+enclavia doctor
+
+<span class="text-slate-500"># Or use the Python zero-code hook</span>
+python -m pip install enclavia-agent</pre>
         </div>
     </section>
 

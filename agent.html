@@ -36,28 +36,66 @@
 <main class="max-w-4xl mx-auto px-6 py-16">
 
     <h1 class="text-3xl md:text-4xl font-extrabold text-white mb-4">Agent integration</h1>
-    <p class="text-slate-400 mb-10">Enclavia is an egress proxy. Your agent keeps its existing logic and SDKs; you only point its outbound HTTP at the data plane.</p>
+    <p class="text-slate-400 mb-10">Enclavia is an egress proxy. Your agent keeps its existing logic and SDKs; choose the CLI, native HTTP contract, or Python auto-hook that fits your runtime.</p>
 
     <section class="mb-12">
-        <h2 class="text-xl font-bold text-white mb-4">Python (recommended)</h2>
-        <p class="text-sm text-slate-400 mb-4">The <code class="font-mono text-brand">enclavia-agent</code> wheel patches <code class="font-mono text-brand">requests</code> and <code class="font-mono text-brand">httpx</code> at startup, so Anthropic/OpenAI SDKs and plain HTTP clients are routed through the enclave with no code changes.</p>
+        <h2 class="text-xl font-bold text-white mb-4">Configure workload credentials</h2>
+        <p class="text-sm text-slate-400 mb-4">Register an AI Agent workload in the dashboard, then keep its API key in your secret manager. New clients authenticate with headers rather than putting credentials in the URL.</p>
         <div class="bg-darkcard rounded-xl border border-slate-800 overflow-x-auto">
-<pre class="p-6 text-sm font-mono text-slate-300">pip install enclavia-agent
-
-export ENCLAVIA_API_URL="http://&lt;data-plane&gt;:3001/api/agent/egress"
+<pre class="p-6 text-sm font-mono text-slate-300">export ENCLAVIA_API_URL="https://&lt;data-plane-host&gt;/api/agent/egress"
 export ENCLAVIA_API_KEY="&lt;workload-api-key&gt;"
-export ENCLAVIA_AGENT_ID="&lt;agent-id&gt;"</pre>
+export ENCLAVIA_AGENT_ID="&lt;workload-id&gt;"</pre>
         </div>
-        <p class="text-xs text-slate-500 mt-3">That's it. The patch is a no-op unless the environment variables are set, so it is safe to install everywhere.</p>
     </section>
 
     <section class="mb-12">
-        <h2 class="text-xl font-bold text-white mb-4">Other languages</h2>
-        <p class="text-sm text-slate-400">Requests from agents in other languages are routed through the Enclavia data plane automatically — configure the data plane endpoint and API key via environment variables or your agent's HTTP client configuration. The data plane is set up during <a href="deployment.html" class="text-brand hover:underline">deployment</a> and managed through the dashboard; there is no raw HTTP API you need to call from application code.</p>
+        <h2 class="text-xl font-bold text-white mb-4">Node.js CLI</h2>
+        <p class="text-sm text-slate-400 mb-4">Use the dependency-free <code class="font-mono text-brand">@enclavia-os/cli</code> for smoke tests, scripts, jobs, or any workflow that does not need a native SDK.</p>
+        <div class="bg-darkcard rounded-xl border border-slate-800 overflow-x-auto">
+<pre class="p-6 text-sm font-mono text-slate-300">npm install --global @enclavia-os/cli
+enclavia doctor
+
+enclavia request \
+  --action post_data \
+  --target "https://api.example.com/v1/run" \
+  --content '{"input":"hello"}' \
+  --header 'content-type:application/json' \
+  --json</pre>
+        </div>
+        <p class="text-xs text-slate-500 mt-3">For one-off use, replace the global install with <code class="font-mono text-brand">npx @enclavia-os/cli doctor</code>.</p>
+    </section>
+
+    <section class="mb-12">
+        <h2 class="text-xl font-bold text-white mb-4">Native HTTP from any language</h2>
+        <p class="text-sm text-slate-400 mb-4">The same JSON contract works from Go, Rust, Java, Ruby, TypeScript, or any HTTP client. Send the workload credentials as headers:</p>
+        <div class="bg-darkcard rounded-xl border border-slate-800 overflow-x-auto">
+<pre class="p-6 text-sm font-mono text-slate-300">curl --fail-with-body --silent --show-error \
+  --request POST "$ENCLAVIA_API_URL" \
+  --header "Authorization: Bearer $ENCLAVIA_API_KEY" \
+  --header "X-Enclavia-Agent-ID: $ENCLAVIA_AGENT_ID" \
+  --header "Content-Type: application/json" \
+  --data '{
+    "action": "post_data",
+    "target": "https://api.example.com/v1/run",
+    "content": "{\"input\":\"hello\"}",
+    "headers": {"content-type": "application/json"}
+  }'</pre>
+        </div>
+        <p class="text-xs text-slate-500 mt-3">Policy blocks return HTTP 403. Older clients may use query parameters for compatibility, but new integrations should use headers.</p>
+    </section>
+
+    <section class="mb-12">
+        <h2 class="text-xl font-bold text-white mb-4">Python zero-code hook</h2>
+        <p class="text-sm text-slate-400 mb-4">The optional <code class="font-mono text-brand">enclavia-agent</code> wheel patches <code class="font-mono text-brand">requests</code> and <code class="font-mono text-brand">httpx</code> at startup, covering Anthropic/OpenAI SDKs and plain HTTP clients without application code changes.</p>
+        <div class="bg-darkcard rounded-xl border border-slate-800 overflow-x-auto">
+<pre class="p-6 text-sm font-mono text-slate-300">python -m pip install enclavia-agent
+python app.py</pre>
+        </div>
+        <p class="text-xs text-slate-500 mt-3">The hook is a no-op unless the Enclavia environment variables are set. See the native HTTP path above for other runtimes.</p>
     </section>
 
     <section>
-        <h2 class="text-xl font-bold text-white mb-4">Supported traffic</h2>
+        <h2 class="text-xl font-bold text-white mb-4">Supported Python traffic</h2>
         <ul class="list-disc list-inside text-sm text-slate-400 space-y-2">
             <li><code class="font-mono text-brand">requests.get</code> / <code class="font-mono text-brand">requests.post</code></li>
             <li><code class="font-mono text-brand">httpx.Client.send</code> / <code class="font-mono text-brand">httpx.AsyncClient.send</code> (covers Anthropic/OpenAI SDKs)</li>
